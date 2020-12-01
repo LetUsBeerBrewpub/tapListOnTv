@@ -28,7 +28,7 @@ root.configure(bg='#1c1c1c')
 img = Image.open(currentPath+"/logo.png")
 logoImg = ImageTk.PhotoImage(img)
 logo = tk.Label(root, width=77, height=43, bg="#1c1c1c")
-logo.place(x=640, y=0)
+logo.pack(side=tk.TOP)
 logo.configure(image=logoImg, width=logoImg.width(), height=logoImg.height())
 logo.image = logoImg
 
