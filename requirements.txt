@@ -1,0 +1,4 @@
+emoji==0.6.0
+emoji-country-flag==1.2.3
+from==0.1.0
+Pillow==8.0.1
