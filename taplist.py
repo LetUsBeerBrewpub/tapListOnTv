@@ -64,23 +64,27 @@ class Planner(tk.Frame):
         self.master.msglabel['text'] = choice(self.data['messages'])
         self.master.after(2000, self.update_notice)
     
-    def updte(self):
+    def update(self):
         data = {}
         # get data and check diff
         data = self.get_data()
+        shared_items = {k: data[k] for k in data if k in self.data and data[k] == self.data[k]}
+        print(len(shared_items))
         print(data)
-        # drop all 
-        # redraw
-        # if menu update
-        # else if message need update
+        if len(shared_items) == 1:
+            #drop all taplist
+            self.drop_all_taplist()
+            #redraw
+            self.data = data
+            self.draw()
+        self.master.after(10000, self.update)
 
     def drop_all_taplist(self):
         for child in self.taplist.winfo_children():
             child.destroy()
 
-
-
 root = tk.Tk()
 app = Planner(master=root)
+app.after(10000, app.update)
 app.mainloop()
 root.destroy()
