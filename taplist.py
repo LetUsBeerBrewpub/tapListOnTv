@@ -16,12 +16,15 @@ class Planner(tk.Frame):
         self.master.configure(bg='#1c1c1c')
         self.currPath = os.path.abspath(os.path.dirname(__file__))
         self.pack()
-        self.drawLogo()
-        self.getData()
-        self.master.msglabel = tk.Label(root, text=self.messages[0], bg="#1c1c1c", fg="#F7F7F7", font=("fzsxsgysjw", 40))
-        self.master.msglabel.pack(side=tk.BOTTOM, fill=tk.X, pady=40)   
-    
-    def drawLogo(self):
+        self.draw_logo()
+        self.data = self.get_data()
+        self.taplist = tk.Frame(self.master, bg="#1c1c1c", height=730, width=1500)
+        self.draw()
+        self.master.msglabel = tk.Label(root, text=self.data['messages'][0], bg="#1c1c1c", fg="#F7F7F7", font=("fzsxsgysjw", 40))
+        self.master.msglabel.pack(side=tk.BOTTOM, fill=tk.X, pady=40)
+        self.update_notice()
+
+    def draw_logo(self):
         img = Image.open(self.currPath+"/sandbox/hand.png")
         logoImg = ImageTk.PhotoImage(img)
         logo = tk.Label(root, width=77, height=43, bg="#1c1c1c")
@@ -29,42 +32,55 @@ class Planner(tk.Frame):
         logo.configure(image=logoImg, width=logoImg.width(), height=logoImg.height())
         logo.image = logoImg
 
-    def getData(self):
+    def get_data(self):
+        data = {}
         with open(self.currPath+'/sandbox/tapdata.json', 'r') as f:
-            self.tap_data = json.load(f)
+            data['tap_data'] = json.load(f)
         with open(self.currPath+'/sandbox/message.json', 'r') as f:
-            self.messages = json.load(f)
+            data['messages'] = json.load(f)
+        return(data)
 
     def draw(self):
         fontname = "fzsxsgysjw"
-        yy = 180
-        for tap in self.tap_data:
-            xx = 90
+        yy = 83
+        for tap in self.data['tap_data']:
+            xx = 10
             if int(tap['tapid']) == 4:
-                yy = 180
+                yy = 83
             if int(tap['tapid']) > 3:
-                xx = 900
-            tapNum = tk.Label(root, text='#'+tap['tapid'], bg="#1c1c1c", fg="#F7F7F7", font=("apple gothic", 50)).place(x=xx, y=yy)
-            tapName = tk.Label(root, text=tap['brewery'] + " " + tap['beername'] + " " + tap['beerstyle'], bg="#1c1c1c", fg="#F7F7F7", font=(fontname, 40)).place(x=xx+90, y=yy-20) 
-            tapNameEn = tk.Label(root, text="Let's Beer Young Master Xiaobai IPA", bg="#1c1c1c", fg="#F7F7F7", font=("apple sd gothic neo", 18)).place(x=xx+90, y=yy+30) 
-            tapDataAbv = tk.Label(root, text="ABV " + tap['abv'] + '%', bg="#1c1c1c", fg="#F7F7F7", font=("apple sd gothic neo", 18)).place(x=xx+90, y=yy+60) 
-            tapDataIbu = tk.Label(root, text="IBU " + tap['ibu'], bg="#1c1c1c", fg="#F7F7F7", font=("apple sd gothic neo", 18)).place(x=xx+200, y=yy+60)
-            tapDataFlag= tk.Label(root, text=flag.flag(tap['country']), bg="#1c1c1c", font=("Courier", 25)).place(x=xx+270, y=yy+60) 
-            tapPrice = tk.Label(root, text="￥" + tap['price'], bg="#1c1c1c", fg="#F7F7F7", font=("apple sd gothic neo", 38)).place(x=xx+600, y=yy-10)
+                xx = 810
+            tapNum =     tk.Label(self.taplist, text='#'+tap['tapid'], bg="#1c1c1c", fg="#F7F7F7", font=("apple gothic", 50)).place(x=xx, y=yy)
+            tapName =    tk.Label(self.taplist, text=tap['brewery'] + " " + tap['beername'] + " " + tap['beerstyle'], bg="#1c1c1c", fg="#F7F7F7", font=(fontname, 40)).place(x=xx+90, y=yy-20) 
+            tapNameEn =  tk.Label(self.taplist, text="Let's Beer Young Master Xiaobai IPA", bg="#1c1c1c", fg="#F7F7F7", font=("apple sd gothic neo", 18)).place(x=xx+90, y=yy+30) 
+            tapDataAbv = tk.Label(self.taplist, text="ABV " + tap['abv'] + '%', bg="#1c1c1c", fg="#F7F7F7", font=("apple sd gothic neo", 18)).place(x=xx+90, y=yy+60) 
+            tapDataIbu = tk.Label(self.taplist, text="IBU " + tap['ibu'], bg="#1c1c1c", fg="#F7F7F7", font=("apple sd gothic neo", 18)).place(x=xx+200, y=yy+60)
+            tapDataFlag= tk.Label(self.taplist, text=flag.flag(tap['country']), bg="#1c1c1c", font=("Courier", 25)).place(x=xx+270, y=yy+60) 
+            tapPrice =   tk.Label(self.taplist, text="￥" + tap['price'], bg="#1c1c1c", fg="#F7F7F7", font=("apple sd gothic neo", 38)).place(x=xx+600, y=yy-10)
             # tapPriceLine = tk.Label(root, text="----", bg="#1c1c1c", fg="#F7F7F7", font=("apple sd gothic neo", 38)).place(x=xx+600, y=yy+20)
             yy = yy + 180
+        self.taplist.pack(side=tk.TOP)
+        
+    def update_notice(self):
+        self.master.msglabel['text'] = choice(self.data['messages'])
+        self.master.after(2000, self.update_notice)
     
-    def updateNotice(self):
-        self.master.msglabel['text'] = choice(self.messages)
-        self.master.after(2000, self.updateNotice)
+    def updte(self):
+        data = {}
+        # get data and check diff
+        data = self.get_data()
+        print(data)
+        # drop all 
+        # redraw
+        # if menu update
+        # else if message need update
 
-
-
+    def drop_all_taplist(self):
+        for child in self.taplist.winfo_children():
+            child.destroy()
 
 
 
 root = tk.Tk()
 app = Planner(master=root)
-app.draw()
-app.updateNotice()
 app.mainloop()
+root.destroy()
