@@ -42,6 +42,7 @@ class Planner(tk.Frame):
 
     def draw(self):
         fontname = "fzsxsgysjw"
+        fontcolor = "#F7F7F7"
         yy = 83
         for tap in self.data['tap_data']:
             xx = 10
@@ -49,13 +50,17 @@ class Planner(tk.Frame):
                 yy = 83
             if int(tap['tapid']) > 3:
                 xx = 810
-            tapNum =     tk.Label(self.taplist, text='#'+tap['tapid'], bg="#1c1c1c", fg="#F7F7F7", font=("apple gothic", 50)).place(x=xx, y=yy)
-            tapName =    tk.Label(self.taplist, text=tap['brewery'] + " " + tap['beername'] + " " + tap['beerstyle'], bg="#1c1c1c", fg="#F7F7F7", font=(fontname, 40)).place(x=xx+90, y=yy-20) 
-            tapNameEn =  tk.Label(self.taplist, text="Let's Beer Young Master Xiaobai IPA", bg="#1c1c1c", fg="#F7F7F7", font=("apple sd gothic neo", 18)).place(x=xx+90, y=yy+30) 
-            tapDataAbv = tk.Label(self.taplist, text="ABV " + tap['abv'] + '%', bg="#1c1c1c", fg="#F7F7F7", font=("apple sd gothic neo", 18)).place(x=xx+90, y=yy+60) 
-            tapDataIbu = tk.Label(self.taplist, text="IBU " + tap['ibu'], bg="#1c1c1c", fg="#F7F7F7", font=("apple sd gothic neo", 18)).place(x=xx+200, y=yy+60)
+            if tap['status'] == "0":
+                fontcolor = "#333333"
+            else:
+                fontcolor = "#F7F7F7"
+            tapNum =     tk.Label(self.taplist, text='#'+tap['tapid'], bg="#1c1c1c", fg=fontcolor, font=("apple gothic", 50)).place(x=xx, y=yy)
+            tapName =    tk.Label(self.taplist, text=tap['brewery'] + " " + tap['beername'] + " " + tap['beerstyle'], bg="#1c1c1c", fg=fontcolor, font=(fontname, 40)).place(x=xx+90, y=yy-20) 
+            tapNameEn =  tk.Label(self.taplist, text="Let's Beer Young Master Xiaobai IPA", bg="#1c1c1c", fg=fontcolor, font=("apple sd gothic neo", 18)).place(x=xx+90, y=yy+30) 
+            tapDataAbv = tk.Label(self.taplist, text="ABV " + tap['abv'] + '%', bg="#1c1c1c", fg=fontcolor, font=("apple sd gothic neo", 18)).place(x=xx+90, y=yy+60) 
+            tapDataIbu = tk.Label(self.taplist, text="IBU " + tap['ibu'], bg="#1c1c1c", fg=fontcolor, font=("apple sd gothic neo", 18)).place(x=xx+200, y=yy+60)
             tapDataFlag= tk.Label(self.taplist, text=flag.flag(tap['country']), bg="#1c1c1c", font=("Courier", 25)).place(x=xx+270, y=yy+60) 
-            tapPrice =   tk.Label(self.taplist, text="￥" + tap['price'], bg="#1c1c1c", fg="#F7F7F7", font=("apple sd gothic neo", 38)).place(x=xx+600, y=yy-10)
+            tapPrice =   tk.Label(self.taplist, text="￥" + tap['price'], bg="#1c1c1c", fg=fontcolor, font=("apple sd gothic neo", 38)).place(x=xx+600, y=yy-10)
             # tapPriceLine = tk.Label(root, text="----", bg="#1c1c1c", fg="#F7F7F7", font=("apple sd gothic neo", 38)).place(x=xx+600, y=yy+20)
             yy = yy + 180
         self.taplist.pack(side=tk.TOP)
@@ -69,8 +74,8 @@ class Planner(tk.Frame):
         # get data and check diff
         data = self.get_data()
         shared_items = {k: data[k] for k in data if k in self.data and data[k] == self.data[k]}
-        print(len(shared_items))
-        print(data)
+        # print(len(shared_items))
+        # print(data)
         if len(shared_items) == 1:
             #drop all taplist
             self.drop_all_taplist()
