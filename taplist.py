@@ -59,10 +59,14 @@ class Planner(tk.Frame):
             tapNameEn =  tk.Label(self.taplist, text="Let's Beer Young Master Xiaobai IPA", bg="#1c1c1c", fg=fontcolor, font=("apple sd gothic neo", 18)).place(x=xx+90, y=yy+30) 
             tapDataAbv = tk.Label(self.taplist, text="ABV " + tap['abv'] + '%', bg="#1c1c1c", fg=fontcolor, font=("apple sd gothic neo", 18)).place(x=xx+90, y=yy+60) 
             tapDataIbu = tk.Label(self.taplist, text="IBU " + tap['ibu'], bg="#1c1c1c", fg=fontcolor, font=("apple sd gothic neo", 18)).place(x=xx+200, y=yy+60)
-            tapDataFlag= tk.Label(self.taplist, text=flag.flag(tap['country']), bg="#1c1c1c", font=("Courier", 25)).place(x=xx+270, y=yy+60) 
-            tapPrice =   tk.Label(self.taplist, text="￥" + tap['price'], bg="#1c1c1c", fg=fontcolor, font=("apple sd gothic neo", 38)).place(x=xx+600, y=yy-10)
-            # tapPriceLine = tk.Label(root, text="----", bg="#1c1c1c", fg="#F7F7F7", font=("apple sd gothic neo", 38)).place(x=xx+600, y=yy+20)
+            tapDataFlag= tk.Label(self.taplist, text=flag.flag(tap['country']), bg="#1c1c1c", font=("Courier", 25)).place(x=xx+270, y=yy+60)
+            tapPrice =   tk.Label(self.taplist, text="￥" + tap['price'], bg="#1c1c1c", fg=fontcolor, font=("apple sd gothic neo", 45)).place(x=xx+600, y=yy-16)
+            tapPriceLine = tk.Label(self.taplist, text="——————", bg="#1c1c1c", fg=fontcolor, font=("apple sd gothic neo", 15)).place(x=xx+602, y=yy+35)
+            tapGlasstype=tk.Label(self.taplist, text=tap['glass_type'] + "mL", bg="#1c1c1c", fg=fontcolor, font=("apple sd gothic neo", 18)).place(x=xx+620, y=yy+55)
             yy = yy + 180
+        # b1=tk.Canvas(self.taplist)
+        # line1=b1.create_line(50,50,50,120,width=5,fill='red')
+        # b1.pack()
         self.taplist.pack(side=tk.TOP)
         
     def update_notice(self):
