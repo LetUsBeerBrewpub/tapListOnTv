@@ -32,7 +32,7 @@ class Planner(tk.Frame):
         self.update_notice()
 
     def draw_logo(self):
-        img = Image.open(self.currPath+"/sandbox/hand.png")
+        img = Image.open(self.currPath+"/img/logo.png")
         logoImg = ImageTk.PhotoImage(img)
         logo = tk.Label(root, width=77, height=43, bg="#1c1c1c")
         logo.pack(side=tk.TOP)
