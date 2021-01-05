@@ -5,12 +5,19 @@ import json, os, time, flag
 import tkinter as tk
 from PIL import Image, ImageTk
 from random import choice
+from pymongo import MongoClient
+from pprint import pprint
 
 class Planner(tk.Frame):
     def __init__(self, master=None):
         super().__init__(master)
+        # connect to mongodb
+        self.client = MongoClient(
+            "mongodb+srv://codingchef:I92IhMEoJgfFm9iV@cluster0.u6tr8.mongodb.net/letusbeer?retryWrites=true&w=majority"
+        )
+        self.db = self.client.letusbeer
+        # init window
         self.master = master
-        # init
         self.master.title("Let's Beer Brewpub Tap List")
         self.master.attributes('-fullscreen', True)
         self.master.configure(bg='#1c1c1c')
@@ -34,18 +41,29 @@ class Planner(tk.Frame):
 
     def get_data(self):
         data = {}
-        with open(self.currPath+'/sandbox/tapdata.json', 'r') as f:
-            data['tap_data'] = json.load(f)
-        with open(self.currPath+'/sandbox/message.json', 'r') as f:
-            data['messages'] = json.load(f)
+        data["tap_data"] = []
+        data["messages"] = []
+
+        collection = self.db.brewpub_taplist
+        res = collection.find({"tapid":{"$lt":"8"}})
+        for row in res:
+            data["tap_data"].append(row)
+        
+        collection = self.db.brewpub_message
+        res = collection.find()
+        for row in res:
+            data["messages"].append(row['msg'])
+    
         return(data)
 
     def draw(self):
         fontname = "fzsxsgysjw"
         fontcolor = "#F7F7F7"
         yy = 83
+        # print(self.data["tap_data"]["tapid"])
         for tap in self.data['tap_data']:
             xx = 10
+            
             if int(tap['tapid']) == 4:
                 yy = 83
             if int(tap['tapid']) > 3:
