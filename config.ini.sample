@@ -1,9 +1,14 @@
+; config file for taplist.py
 [default]
 side = 
+title = 
+bgcolor = 
+fgcolor = 
 
 [wx]
 envid = 
+appid = 
+secret = 
 
 [mongodb]
 url = 
-
