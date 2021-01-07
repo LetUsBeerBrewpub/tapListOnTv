@@ -2,6 +2,7 @@
 # https://docs.python.org/zh-cn/3/library/tk.html
 
 import json, os, time, flag
+from configparser import ConfigParser
 import tkinter as tk
 from PIL import Image, ImageTk
 from random import choice
@@ -11,9 +12,13 @@ from pprint import pprint
 class Planner(tk.Frame):
     def __init__(self, master=None):
         super().__init__(master)
+        # load config file
+        self.config = ConfigParser()
+        self.config.read('config.ini')
+
         # connect to mongodb
         self.client = MongoClient(
-            "mongodb+srv://codingchef:I92IhMEoJgfFm9iV@cluster0.u6tr8.mongodb.net/letusbeer?retryWrites=true&w=majority"
+            self.config.get('mongodb', 'url')
         )
         self.db = self.client.letusbeer
         # init window
@@ -109,6 +114,11 @@ class Planner(tk.Frame):
     def drop_all_taplist(self):
         for child in self.taplist.winfo_children():
             child.destroy()
+
+
+
+cfg = ConfigParser()
+cfg.read('config.ini')
 
 root = tk.Tk()
 app = Planner(master=root)

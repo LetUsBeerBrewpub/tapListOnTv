@@ -1,3 +1,4 @@
 sandbox/
 venv/
 .vscode/
+config.ini
