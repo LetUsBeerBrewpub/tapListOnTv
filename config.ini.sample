@@ -1,13 +1,13 @@
 ; config file for taplist.py
 [default]
-side = 
-title = 
-bgcolor = 
-fgcolor = 
-mainfont = 
-subfont = 
-msgchangetime = 
-tapinfochecktime = 
+side = right
+title = Let's Beer Brewpub Tap List
+bgcolor = #1c1c1c
+fgcolor = #F7F7F7
+mainfont = FZSXSGYSJW
+subfont = Apple SD Gothic Neo
+msgchangetime = 10000
+tapinfochecktime = 100000
 
 [wx]
 envid = 
