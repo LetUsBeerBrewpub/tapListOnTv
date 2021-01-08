@@ -18,6 +18,8 @@ class Planner(tk.Frame):
         self.config.read('config.ini')
         self.bg = self.config.get('default', 'bgcolor')
         self.fg = self.config.get('default', 'fgcolor')
+        self.mf = self.config.get('default', 'mainfont')
+        self.sf = self.config.get('default', 'subfont')
 
         # connect to mongodb
         self.client = MongoClient(
@@ -35,7 +37,7 @@ class Planner(tk.Frame):
         self.data = self.get_data()
         self.taplist = tk.Frame(self.master, bg=self.bg, height=730, width=1500)
         self.draw()
-        self.master.msglabel = tk.Label(root, text=self.data['messages'][0], bg=self.bg, fg=self.fg, font=("fzsxsgysjw", 40))
+        self.master.msglabel = tk.Label(root, text=self.data['messages'][0], bg=self.bg, fg=self.fg, font=(self.mf, 40))
         self.master.msglabel.pack(side=tk.BOTTOM, fill=tk.X, pady=40)
         self.update_notice()
 
@@ -51,6 +53,7 @@ class Planner(tk.Frame):
         data = {}
         data["tap_data"] = []
         data["messages"] = []
+        messages = []
 
         token = self.wx_get_access_token()
         # tap info
@@ -67,15 +70,20 @@ class Planner(tk.Frame):
             data["tap_data"].append(json.loads(row))
 
         # message
-        collection = self.db.brewpub_message
-        res = collection.find()
-        for row in res:
-            data["messages"].append(row['msg'])
-    
+        query_str = '''
+        db.collection("message").get()
+        '''
+        query_result = self.wx_query_data(token = token, query = query_str)
+        for row in query_result:
+            messages.append(json.loads(row)['content'])
+        if self.config.get('default', 'side') == 'left':
+            data["messages"] = messages[::2]
+        elif self.config.get('default', 'side') == 'right':
+            data["messages"] = messages[1::2]  
+
         return(data)
 
     def draw(self):
-        fontname = "fzsxsgysjw"
         fontcolor = self.fg
 
         tapnum = ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F']
@@ -98,15 +106,15 @@ class Planner(tk.Frame):
             else:
                 fontcolor = self.fg
 
-            tapNum =     tk.Label(self.taplist, bg=self.bg, fg=fontcolor, font=("apple gothic", 50), text='#'+ tapnum[tap['tapid']]).place(x=xx, y=yy)
-            tapName =    tk.Label(self.taplist, bg=self.bg, fg=fontcolor, font=(fontname, 40), text=tap['brewery'] + " " + tap['beername'] + " " + tap['beerstyle']).place(x=xx+90, y=yy-20) 
-            tapNameEn =  tk.Label(self.taplist, bg=self.bg, fg=fontcolor, font=("apple sd gothic neo", 18), text="Let's Beer Young Master Xiaobai IPA").place(x=xx+90, y=yy+30) 
-            tapDataAbv = tk.Label(self.taplist, bg=self.bg, fg=fontcolor, font=("apple sd gothic neo", 18), text="ABV " + str(tap['abv']) + '%').place(x=xx+90, y=yy+60) 
-            tapDataIbu = tk.Label(self.taplist, bg=self.bg, fg=fontcolor, font=("apple sd gothic neo", 18), text="IBU " + str(tap['ibu'])).place(x=xx+200, y=yy+60)
-            tapDataFlag= tk.Label(self.taplist, bg=self.bg, font=("Courier", 25), text=flag.flag(tap['country'])).place(x=xx+270, y=yy+60)
-            tapPrice =   tk.Label(self.taplist, bg=self.bg, fg=fontcolor, font=("apple sd gothic neo", 45), text="￥" + str(tap['price'])).place(x=xx+600, y=yy-16)
-            tapPriceLine=tk.Label(self.taplist, bg=self.bg, fg=fontcolor, font=("apple sd gothic neo", 15), text="——————").place(x=xx+602, y=yy+35)
-            tapGlasstype=tk.Label(self.taplist, bg=self.bg, fg=fontcolor, font=("apple sd gothic neo", 18), text=str(tap['glass_type']) + "mL").place(x=xx+620, y=yy+55)
+            tapNum =     tk.Label(self.taplist, bg=self.bg, fg=fontcolor, font=(self.sf, 50), text='#'+ tapnum[tap['tapid']]).place(x=xx, y=yy)
+            tapName =    tk.Label(self.taplist, bg=self.bg, fg=fontcolor, font=(self.mf, 40), text=tap['brewery'] + " " + tap['beername'] + " " + tap['beerstyle']).place(x=xx+90, y=yy-20) 
+            tapNameEn =  tk.Label(self.taplist, bg=self.bg, fg=fontcolor, font=(self.sf, 18), text="Let's Beer Young Master Xiaobai IPA").place(x=xx+90, y=yy+30) 
+            tapDataAbv = tk.Label(self.taplist, bg=self.bg, fg=fontcolor, font=(self.sf, 18), text="ABV " + str(tap['abv']) + '%').place(x=xx+90, y=yy+60) 
+            tapDataIbu = tk.Label(self.taplist, bg=self.bg, fg=fontcolor, font=(self.sf, 18), text="IBU " + str(tap['ibu'])).place(x=xx+200, y=yy+60)
+            tapDataFlag= tk.Label(self.taplist, bg=self.bg, font=(self.sf, 25), text=flag.flag(tap['country'])).place(x=xx+270, y=yy+55)
+            tapPrice =   tk.Label(self.taplist, bg=self.bg, fg=fontcolor, font=(self.sf, 45), text="￥" + str(tap['price'])).place(x=xx+600, y=yy-16)
+            tapPriceLine=tk.Label(self.taplist, bg=self.bg, fg=fontcolor, font=(self.sf, 15), text="——————").place(x=xx+602, y=yy+35)
+            tapGlasstype=tk.Label(self.taplist, bg=self.bg, fg=fontcolor, font=(self.sf, 18), text=str(tap['glass_type']) + "mL").place(x=xx+620, y=yy+55)
             yy = yy + 180
         # b1=tk.Canvas(self.taplist)
         # line1=b1.create_line(50,50,50,120,width=5,fill='red')
@@ -115,22 +123,21 @@ class Planner(tk.Frame):
         
     def update_notice(self):
         self.master.msglabel['text'] = choice(self.data['messages'])
-        self.master.after(2000, self.update_notice)
+        self.master.after(self.config.get('default', 'msgchangetime'), self.update_notice)
     
     def update(self):
         data = {}
         # get data and check diff
         data = self.get_data()
         shared_items = {k: data[k] for k in data if k in self.data and data[k] == self.data[k]}
-        # print(len(shared_items))
-        # print(data)
+
         if len(shared_items) == 1:
             #drop all taplist
             self.drop_all_taplist()
             #redraw
             self.data = data
             self.draw()
-        self.master.after(10000, self.update)
+        self.master.after(self.config.get('default', 'tapinfochecktime'), self.update)
 
     def drop_all_taplist(self):
         for child in self.taplist.winfo_children():
@@ -188,6 +195,6 @@ cfg.read('config.ini')
 
 root = tk.Tk()
 app = Planner(master=root)
-app.after(10000, app.update)
+app.after(cfg.get('default', 'tapinfochecktime'), app.update)
 app.mainloop()
 # root.destroy()

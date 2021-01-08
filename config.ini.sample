@@ -4,6 +4,10 @@ side =
 title = 
 bgcolor = 
 fgcolor = 
+mainfont = 
+subfont = 
+msgchangetime = 
+tapinfochecktime = 
 
 [wx]
 envid = 
