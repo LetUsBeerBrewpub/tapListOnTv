@@ -6,7 +6,6 @@ from configparser import ConfigParser
 import tkinter as tk
 from PIL import Image, ImageTk
 from random import choice
-from pymongo import MongoClient
 from pprint import pprint
 import requests
 
@@ -21,11 +20,6 @@ class Planner(tk.Frame):
         self.mf = self.config.get('default', 'mainfont')
         self.sf = self.config.get('default', 'subfont')
 
-        # connect to mongodb
-        self.client = MongoClient(
-            self.config.get('mongodb', 'url')
-        )
-        self.db = self.client.letusbeer
         # init window
         self.master = master
         self.master.title(self.config.get('default', 'title'))
@@ -111,7 +105,7 @@ class Planner(tk.Frame):
             tapNameEn =  tk.Label(self.taplist, bg=self.bg, fg=fontcolor, font=(self.sf, 18), text="Let's Beer Young Master Xiaobai IPA").place(x=xx+90, y=yy+30) 
             tapDataAbv = tk.Label(self.taplist, bg=self.bg, fg=fontcolor, font=(self.sf, 18), text="ABV " + str(tap['abv']) + '%').place(x=xx+90, y=yy+60) 
             tapDataIbu = tk.Label(self.taplist, bg=self.bg, fg=fontcolor, font=(self.sf, 18), text="IBU " + str(tap['ibu'])).place(x=xx+200, y=yy+60)
-            tapDataFlag= tk.Label(self.taplist, bg=self.bg, font=(self.sf, 25), text=flag.flag(tap['country'])).place(x=xx+270, y=yy+55)
+            # tapDataFlag= tk.Label(self.taplist, bg=self.bg, font=(self.sf, 25), text=flag.flag(tap['country'])).place(x=xx+270, y=yy+55)
             tapPrice =   tk.Label(self.taplist, bg=self.bg, fg=fontcolor, font=(self.sf, 45), text="￥" + str(tap['price'])).place(x=xx+600, y=yy-16)
             tapPriceLine=tk.Label(self.taplist, bg=self.bg, fg=fontcolor, font=(self.sf, 15), text="——————").place(x=xx+602, y=yy+35)
             tapGlasstype=tk.Label(self.taplist, bg=self.bg, fg=fontcolor, font=(self.sf, 18), text=str(tap['glass_type']) + "mL").place(x=xx+620, y=yy+55)
@@ -197,4 +191,4 @@ root = tk.Tk()
 app = Planner(master=root)
 app.after(cfg.get('default', 'tapinfochecktime'), app.update)
 app.mainloop()
-# root.destroy()
+# root.destroy()9
