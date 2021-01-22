@@ -6,7 +6,6 @@ from configparser import ConfigParser
 import tkinter as tk
 from PIL import Image, ImageTk
 from random import choice
-from pprint import pprint
 import requests
 
 class Planner(tk.Frame):
@@ -38,7 +37,7 @@ class Planner(tk.Frame):
     def draw_logo(self):
         img = Image.open(self.currPath+"/img/logo.png")
         logoImg = ImageTk.PhotoImage(img)
-        logo = tk.Label(root, width=77, height=43, bg=self.bg)
+        logo = tk.Label(root, width=80, height=50, bg=self.bg)
         logo.pack(side=tk.TOP)
         logo.configure(image=logoImg, width=logoImg.width(), height=logoImg.height())
         logo.image = logoImg
@@ -87,11 +86,11 @@ class Planner(tk.Frame):
         elif self.config.get('default', 'side') == 'right':
             num = [12,11]
 
-        yy = 83
+        yy = 90
         for tap in self.data['tap_data']:
             xx = 10
             if tap['tapid'] == num[0]:
-                yy = 83
+                yy = 90
             if tap['tapid'] > num[1]:
                 xx = 810
 
@@ -110,9 +109,6 @@ class Planner(tk.Frame):
             tapPriceLine=tk.Label(self.taplist, bg=self.bg, fg=fontcolor, font=(self.sf, 15), text="——————").place(x=xx+602, y=yy+35)
             tapGlasstype=tk.Label(self.taplist, bg=self.bg, fg=fontcolor, font=(self.sf, 18), text=str(tap['glass_type']) + "mL").place(x=xx+620, y=yy+55)
             yy = yy + 180
-        # b1=tk.Canvas(self.taplist)
-        # line1=b1.create_line(50,50,50,120,width=5,fill='red')
-        # b1.pack()
         self.taplist.pack(side=tk.TOP)
         
     def update_notice(self):
