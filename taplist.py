@@ -23,6 +23,7 @@ class Planner(tk.Frame):
         self.master = master
         self.master.title(self.config.get('default', 'title'))
         self.master.attributes('-fullscreen', True)
+        # self.master.geometry("1920x1080")
         self.master.configure(bg='#1c1c1c')
         self.currPath = os.path.abspath(os.path.dirname(__file__))
         self.pack()
@@ -88,7 +89,7 @@ class Planner(tk.Frame):
 
         yy = 90
         for tap in self.data['tap_data']:
-            xx = 10
+            xx = 1
             if tap['tapid'] == num[0]:
                 yy = 90
             if tap['tapid'] > num[1]:
@@ -101,13 +102,13 @@ class Planner(tk.Frame):
 
             tapNum =     tk.Label(self.taplist, bg=self.bg, fg=fontcolor, font=(self.sf, 50), text='#'+ tapnum[tap['tapid']]).place(x=xx, y=yy)
             tapName =    tk.Label(self.taplist, bg=self.bg, fg=fontcolor, font=(self.mf, 40), text=tap['brewery'] + " " + tap['beername'] + " " + tap['beerstyle']).place(x=xx+90, y=yy-20) 
-            tapNameEn =  tk.Label(self.taplist, bg=self.bg, fg=fontcolor, font=(self.sf, 18), text="Let's Beer Young Master Xiaobai IPA").place(x=xx+90, y=yy+30) 
-            tapDataAbv = tk.Label(self.taplist, bg=self.bg, fg=fontcolor, font=(self.sf, 18), text="ABV " + str(tap['abv']) + '%').place(x=xx+90, y=yy+60) 
-            tapDataIbu = tk.Label(self.taplist, bg=self.bg, fg=fontcolor, font=(self.sf, 18), text="IBU " + str(tap['ibu'])).place(x=xx+200, y=yy+60)
+            tapNameEn =  tk.Label(self.taplist, bg=self.bg, fg=fontcolor, font=(self.sf, 18), text=tap['ebeername']).place(x=xx+90, y=yy+35) 
+            tapDataAbv = tk.Label(self.taplist, bg=self.bg, fg=fontcolor, font=(self.sf, 18), text="ABV " + str(tap['abv']) + '%').place(x=xx+90, y=yy+65) 
+            tapDataIbu = tk.Label(self.taplist, bg=self.bg, fg=fontcolor, font=(self.sf, 18), text="IBU " + str(tap['ibu'])).place(x=xx+200, y=yy+65)
             # tapDataFlag= tk.Label(self.taplist, bg=self.bg, font=(self.sf, 25), text=flag.flag(tap['country'])).place(x=xx+270, y=yy+55)
-            tapPrice =   tk.Label(self.taplist, bg=self.bg, fg=fontcolor, font=(self.sf, 45), text="￥" + str(tap['price'])).place(x=xx+600, y=yy-16)
-            tapPriceLine=tk.Label(self.taplist, bg=self.bg, fg=fontcolor, font=(self.sf, 15), text="——————").place(x=xx+602, y=yy+35)
-            tapGlasstype=tk.Label(self.taplist, bg=self.bg, fg=fontcolor, font=(self.sf, 18), text=str(tap['glass_type']) + "mL").place(x=xx+620, y=yy+55)
+            tapPrice =   tk.Label(self.taplist, bg=self.bg, fg=fontcolor, font=(self.sf, 45), text="￥" + str(tap['price'])).place(x=xx+630, y=yy-16)
+            tapPriceLine=tk.Label(self.taplist, bg=self.bg, fg=fontcolor, font=(self.sf, 15), text="——————").place(x=xx+632, y=yy+35)
+            tapGlasstype=tk.Label(self.taplist, bg=self.bg, fg=fontcolor, font=(self.sf, 18), text=str(tap['glass_type']) + "mL").place(x=xx+650, y=yy+55)
             yy = yy + 180
         self.taplist.pack(side=tk.TOP)
         
