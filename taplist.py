@@ -24,13 +24,11 @@ class Planner(tk.Frame):
         self.master = master
         self.master.title(self.config.get('default', 'title'))
         self.master.attributes('-fullscreen', True)
-        # self.master.configure(bg='#1c1c1c')
         self.w_width = self.master.winfo_width()
         self.w_height = self.master.winfo_height()
 
         # get path
         self.currPath = os.path.abspath(os.path.dirname(__file__))
-        # self.pack()
 
         # init build
         self.canvas = tk.Canvas(
@@ -43,8 +41,8 @@ class Planner(tk.Frame):
         )
         self.canvas.place(x=0, y=0)
         self.canvas.pack(fill='both', expand='yes')
-        self.canvas.grid(row=2, column=3)
 
+        # output to gui
         self.data = self.get_data()
         self.draw()
 
@@ -100,9 +98,6 @@ class Planner(tk.Frame):
         # draw logo
         self.draw_logo()
 
-        # draw title
-        # self.canvas.create_text(self.w_width/2, 50,fill=self.fg, font=(self.mf, 40), text="乐啤酒社 - 生啤酒单")
-
         # draw a parting line
         self.canvas.create_line(self.w_width/2, 150, self.w_width/2, self.w_height-300, fill=self.fg, width=2)
         # draw taplist
@@ -129,6 +124,7 @@ class Planner(tk.Frame):
             self.canvas.create_line(xx+590, yy+40, xx+680, yy+40, fill=fontcolor, width=2)
             self.canvas.create_text(xx+620, yy+55, anchor="w", fill=fontcolor, font=(self.sf, 18), text=str(tap['glass_type']) + "mL")
             yy = yy + 200
+        
         # messages
         self.notice = self.canvas.create_text(self.w_width/2, 900, anchor="n", fill=self.fg, font=(self.mf, 40), text=self.data['messages'][0])
         self.update_notice()
