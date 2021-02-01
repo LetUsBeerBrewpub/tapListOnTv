@@ -11,6 +11,7 @@ import requests
 class Planner(tk.Frame):
     def __init__(self, master=None):
         super().__init__(master)
+
         # load config file
         self.config = ConfigParser()
         self.config.read('config.ini')
@@ -19,29 +20,37 @@ class Planner(tk.Frame):
         self.mf = self.config.get('default', 'mainfont')
         self.sf = self.config.get('default', 'subfont')
 
-        # init window
+        # set window
         self.master = master
         self.master.title(self.config.get('default', 'title'))
         self.master.attributes('-fullscreen', True)
-        # self.master.geometry("1920x1080")
-        self.master.configure(bg='#1c1c1c')
+        # self.master.configure(bg='#1c1c1c')
+        self.w_width = self.master.winfo_width()
+        self.w_height = self.master.winfo_height()
+
+        # get path
         self.currPath = os.path.abspath(os.path.dirname(__file__))
-        self.pack()
-        self.draw_logo()
+        # self.pack()
+
+        # init build
+        self.canvas = tk.Canvas(
+            self.master,
+            width=self.w_width, 
+            height=self.w_height,
+            borderwidth=0, 
+            highlightthickness=0,
+            bg=self.bg
+        )
+        self.canvas.place(x=0, y=0)
+        self.canvas.pack(fill='both', expand='yes')
+
         self.data = self.get_data()
-        self.taplist = tk.Frame(self.master, bg=self.bg, height=820, width=1800)
         self.draw()
-        self.master.msglabel = tk.Label(root, text=self.data['messages'][0], bg=self.bg, fg=self.fg, font=(self.mf, 40))
-        self.master.msglabel.pack(side=tk.BOTTOM, fill=tk.X, pady=60)
-        self.update_notice()
 
     def draw_logo(self):
         img = Image.open(self.currPath+"/img/logo.png")
-        logoImg = ImageTk.PhotoImage(img)
-        logo = tk.Label(root, width=80, height=50, bg=self.bg)
-        logo.pack(side=tk.TOP)
-        logo.configure(image=logoImg, width=logoImg.width(), height=logoImg.height())
-        logo.image = logoImg
+        logo = ImageTk.PhotoImage(img)
+        self.canvas.create_image(self.w_width/2, 50, anchor="n", image=logo)
 
     def get_data(self):
         data = {}
@@ -87,34 +96,46 @@ class Planner(tk.Frame):
         elif self.config.get('default', 'side') == 'right':
             num = [12,11]
 
-        yy = 90
+        # draw logo
+        self.draw_logo()
+
+        # draw title
+        self.canvas.create_text(self.w_width/2, 50,fill=self.fg, font=(self.mf, 40), text="乐啤酒社 - 生啤酒单")
+
+        # draw a parting line
+        self.canvas.create_line(self.w_width/2, 150, self.w_width/2, self.w_height-300, fill=self.fg, width=2)
+        # draw taplist
+        yy = 150
         for tap in self.data['tap_data']:
-            xx = 60
+            xx = self.w_width/16
             if tap['tapid'] == num[0]:
-                yy = 90
+                yy = 150
             if tap['tapid'] > num[1]:
-                xx = 1000
+                xx += 830
 
             if tap['status'] == 0:
                 fontcolor = "#333333"
             else:
                 fontcolor = self.fg
 
-            tapNum =     tk.Label(self.taplist, bg=self.bg, fg=fontcolor, font=(self.sf, 50), text='#'+ tapnum[tap['tapid']]).place(x=xx, y=yy)
-            tapName =    tk.Label(self.taplist, bg=self.bg, fg=fontcolor, font=(self.mf, 32), text=tap['brewery'] + " " + tap['beername'] + " " + tap['beerstyle']).place(x=xx+90, y=yy-20) 
-            tapNameEn =  tk.Label(self.taplist, bg=self.bg, fg=fontcolor, font=(self.sf, 19), text=tap['ebeername']).place(x=xx+90, y=yy+40) 
-            tapDataAbv = tk.Label(self.taplist, bg=self.bg, fg=fontcolor, font=(self.sf, 22), text="ABV " + str(tap['abv']) + '%').place(x=xx+90, y=yy+88) 
-            tapDataIbu = tk.Label(self.taplist, bg=self.bg, fg=fontcolor, font=(self.sf, 22), text="IBU " + str(tap['ibu'])).place(x=xx+250, y=yy+85)
-            # tapDataFlag= tk.Label(self.taplist, bg=self.bg, font=(self.sf, 25), text=flag.flag(tap['country'])).place(x=xx+270, y=yy+55)
-            tapPrice =   tk.Label(self.taplist, bg=self.bg, fg=fontcolor, font=(self.sf, 42), text="￥" + str(tap['price'])).place(x=xx+630, y=yy-16)
-            tapPriceLine=tk.Label(self.taplist, bg=self.bg, fg=fontcolor, font=(self.sf, 15), text="——————").place(x=xx+632, y=yy+35)
-            tapGlasstype=tk.Label(self.taplist, bg=self.bg, fg=fontcolor, font=(self.sf, 20), text=str(tap['glass_type']) + "mL").place(x=xx+648, y=yy+55)
+            self.canvas.create_text(xx, yy, fill=fontcolor, font=(self.sf, 60), text='#'+ tapnum[tap['tapid']])
+            self.canvas.create_text(xx+100, yy-20, anchor="w", fill=fontcolor, font=(self.mf, 32), text=tap['brewery'] + " " + tap['beername'] + " " + tap['beerstyle'])
+            self.canvas.create_text(xx+100, yy+40, anchor="w", fill=fontcolor, font=(self.sf, 19), text=tap['ebeername'])
+            self.canvas.create_text(xx+100, yy+88, anchor="w", fill=fontcolor, font=(self.sf, 22), text="ABV " + str(tap['abv']) + '%')
+            self.canvas.create_text(xx+250, yy+88, anchor="w", fill=fontcolor, font=(self.sf, 22), text="IBU " + str(tap['ibu']))
+            self.canvas.create_text(xx+330, yy+88, anchor="w", fill=fontcolor, font=(self.sf, 22), text=flag.flag(tap['country']))
+            self.canvas.create_text(xx+600, yy+20, anchor="w", fill=fontcolor, font=(self.sf, 42), text="￥" + str(tap['price']))
+            self.canvas.create_line(xx+590, yy+40, xx+680, yy+40, fill=fontcolor, width=2)
+            self.canvas.create_text(xx+620, yy+55, anchor="w", fill=fontcolor, font=(self.sf, 18), text=str(tap['glass_type']) + "mL")
             yy = yy + 200
-        self.taplist.pack(side=tk.TOP)
+        # messages
+        self.notice = self.canvas.create_text(self.w_width/2, 900, anchor="n", fill=self.fg, font=(self.mf, 40), text=self.data['messages'][0])
+        self.update_notice()
         
     def update_notice(self):
-        self.master.msglabel['text'] = choice(self.data['messages'])
-        self.master.after(self.config.get('default', 'msgchangetime'), self.update_notice)
+        new_text = choice(self.data['messages'])
+        self.canvas.itemconfig(self.notice, text=new_text)
+        self.canvas.after(self.config.get('default', 'msgchangetime'), self.update_notice)
     
     def update(self):
         data = {}
@@ -124,15 +145,11 @@ class Planner(tk.Frame):
 
         if len(shared_items) == 1:
             #drop all taplist
-            self.drop_all_taplist()
+            self.canvas.delete("all")
             #redraw
             self.data = data
             self.draw()
         self.master.after(self.config.get('default', 'tapinfochecktime'), self.update)
-
-    def drop_all_taplist(self):
-        for child in self.taplist.winfo_children():
-            child.destroy()
     
     def wx_get_access_token(self):
         cs_url = 'https://api.weixin.qq.com/cgi-bin/token?'
@@ -188,4 +205,4 @@ root = tk.Tk()
 app = Planner(master=root)
 app.after(cfg.get('default', 'tapinfochecktime'), app.update)
 app.mainloop()
-# root.destroy()9
+# root.destroy()
