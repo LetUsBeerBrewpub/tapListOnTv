@@ -43,14 +43,15 @@ class Planner(tk.Frame):
         )
         self.canvas.place(x=0, y=0)
         self.canvas.pack(fill='both', expand='yes')
+        self.canvas.grid(row=2, column=3)
 
         self.data = self.get_data()
         self.draw()
 
     def draw_logo(self):
         img = Image.open(self.currPath+"/img/logo.png")
-        logo = ImageTk.PhotoImage(img)
-        self.canvas.create_image(self.w_width/2, 50, anchor="n", image=logo)
+        self.canvas.logo = ImageTk.PhotoImage(img)
+        self.canvas.create_image(self.w_width/2, 15, anchor="n", image=self.canvas.logo)
 
     def get_data(self):
         data = {}
@@ -100,7 +101,7 @@ class Planner(tk.Frame):
         self.draw_logo()
 
         # draw title
-        self.canvas.create_text(self.w_width/2, 50,fill=self.fg, font=(self.mf, 40), text="乐啤酒社 - 生啤酒单")
+        # self.canvas.create_text(self.w_width/2, 50,fill=self.fg, font=(self.mf, 40), text="乐啤酒社 - 生啤酒单")
 
         # draw a parting line
         self.canvas.create_line(self.w_width/2, 150, self.w_width/2, self.w_height-300, fill=self.fg, width=2)
