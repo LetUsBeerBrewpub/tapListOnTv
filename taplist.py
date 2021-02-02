@@ -114,7 +114,7 @@ class Planner(tk.Frame):
             else:
                 fontcolor = self.fg
 
-            self.canvas.create_text(xx, yy, fill=fontcolor, font=(self.sf, 60), text='#'+ tapnum[tap['tapid']])
+            self.canvas.create_text(xx, yy+20, fill=fontcolor, font=(self.sf, 60), text='#'+ tapnum[tap['tapid']])
             self.canvas.create_text(xx+100, yy-20, anchor="w", fill=fontcolor, font=(self.mf, 32), text=tap['brewery'] + " " + tap['beername'] + " " + tap['beerstyle'])
             self.canvas.create_text(xx+100, yy+40, anchor="w", fill=fontcolor, font=(self.sf, 19), text=tap['ebeername'])
             self.canvas.create_text(xx+100, yy+88, anchor="w", fill=fontcolor, font=(self.sf, 22), text="ABV " + str(tap['abv']) + '%')
