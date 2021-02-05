@@ -24,8 +24,8 @@ class Planner(tk.Frame):
         self.master = master
         self.master.title(self.config.get('default', 'title'))
         self.master.attributes('-fullscreen', True)
-        self.w_width = self.master.winfo_width()
-        self.w_height = self.master.winfo_height()
+        self.w_width = self.master.winfo_screenwidth()
+        self.w_height = self.master.winfo_screenheight()
 
         # get path
         self.currPath = os.path.abspath(os.path.dirname(__file__))
@@ -49,7 +49,7 @@ class Planner(tk.Frame):
     def draw_logo(self):
         img = Image.open(self.currPath+"/img/logo.png")
         self.canvas.logo = ImageTk.PhotoImage(img)
-        self.canvas.create_image(self.w_width/2, 15, anchor="n", image=self.canvas.logo)
+        self.canvas.create_image(self.w_width/2, 20, anchor="n", image=self.canvas.logo)
 
     def get_data(self):
         data = {}
@@ -99,13 +99,14 @@ class Planner(tk.Frame):
         self.draw_logo()
 
         # draw a parting line
-        self.canvas.create_line(self.w_width/2, 150, self.w_width/2, self.w_height-300, fill=self.fg, width=2)
+        self.canvas.create_line(self.w_width/2, 150, self.w_width/2, self.w_height-250, fill=self.fg, width=2)
         # draw taplist
-        yy = 150
+        yy = 200
+        #print(self.master.winfo_screenwidth())
         for tap in self.data['tap_data']:
-            xx = self.w_width/16
+            xx = self.w_width/16 + 90
             if tap['tapid'] == num[0]:
-                yy = 150
+                yy = 200
             if tap['tapid'] > num[1]:
                 xx += 830
 
@@ -119,14 +120,14 @@ class Planner(tk.Frame):
             self.canvas.create_text(xx+100, yy+40, anchor="w", fill=fontcolor, font=(self.sf, 19), text=tap['ebeername'])
             self.canvas.create_text(xx+100, yy+88, anchor="w", fill=fontcolor, font=(self.sf, 22), text="ABV " + str(tap['abv']) + '%')
             self.canvas.create_text(xx+250, yy+88, anchor="w", fill=fontcolor, font=(self.sf, 22), text="IBU " + str(tap['ibu']))
-            self.canvas.create_text(xx+330, yy+88, anchor="w", fill=fontcolor, font=(self.sf, 22), text=flag.flag(tap['country']))
-            self.canvas.create_text(xx+600, yy+20, anchor="w", fill=fontcolor, font=(self.sf, 42), text="￥" + str(tap['price']))
-            self.canvas.create_line(xx+590, yy+40, xx+680, yy+40, fill=fontcolor, width=2)
-            self.canvas.create_text(xx+620, yy+55, anchor="w", fill=fontcolor, font=(self.sf, 18), text=str(tap['glass_type']) + "mL")
+            #self.canvas.create_text(xx+330, yy+88, anchor="w", fill=fontcolor, font=(self.sf, 22), text=flag.flag(tap['country']))
+            self.canvas.create_text(xx+600, yy+15, anchor="w", fill=fontcolor, font=(self.sf, 42), text="￥" + str(tap['price']))
+            self.canvas.create_line(xx+600, yy+40, xx+700, yy+40, fill=fontcolor, width=2)
+            self.canvas.create_text(xx+620, yy+60, anchor="w", fill=fontcolor, font=(self.sf, 20), text=str(tap['glass_type']) + "mL")
             yy = yy + 200
         
         # messages
-        self.notice = self.canvas.create_text(self.w_width/2, 900, anchor="n", fill=self.fg, font=(self.mf, 40), text=self.data['messages'][0])
+        self.notice = self.canvas.create_text(self.w_width/2, 950, anchor="n", fill=self.fg, font=(self.mf, 40), text=self.data['messages'][0])
         self.update_notice()
         
     def update_notice(self):
