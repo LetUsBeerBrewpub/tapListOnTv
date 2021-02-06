@@ -49,7 +49,7 @@ class Planner(tk.Frame):
     def draw_logo(self):
         img = Image.open(self.currPath+"/img/logo.png")
         self.canvas.logo = ImageTk.PhotoImage(img)
-        self.canvas.create_image(self.w_width/2, 20, anchor="n", image=self.canvas.logo)
+        self.canvas.create_image(self.w_width/2, self.w_width * 0.02, anchor="n", image=self.canvas.logo)
 
     def get_data(self):
         data = {}
@@ -99,14 +99,13 @@ class Planner(tk.Frame):
         self.draw_logo()
 
         # draw a parting line
-        self.canvas.create_line(self.w_width/2, 150, self.w_width/2, self.w_height-250, fill=self.fg, width=2)
+        self.canvas.create_line(self.w_width/2, self.w_height * 0.185, self.w_width/2, self.w_height * 0.77, fill=self.fg, width=2)
         # draw taplist
-        yy = 200
-        #print(self.master.winfo_screenwidth())
+        yy = self.w_height * 0.185
         for tap in self.data['tap_data']:
-            xx = self.w_width/16 + 90
+            xx = self.w_width/16
             if tap['tapid'] == num[0]:
-                yy = 200
+                yy = self.w_height * 0.185
             if tap['tapid'] > num[1]:
                 xx += 830
 
