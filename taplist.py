@@ -23,6 +23,7 @@ class Planner(tk.Frame):
         # set window
         self.master = master
         self.master.title(self.config.get('default', 'title'))
+        # self.master.geometry("1920x1080")
         self.master.attributes('-fullscreen', True)
         self.w_width = self.master.winfo_screenwidth()
         self.w_height = self.master.winfo_screenheight()
@@ -41,6 +42,9 @@ class Planner(tk.Frame):
         )
         self.canvas.place(x=0, y=0)
         self.canvas.pack(fill='both', expand='yes')
+
+        # menu
+        self.make_menu()
 
         # output to gui
         self.data = self.get_data()
@@ -194,6 +198,14 @@ class Planner(tk.Frame):
             return data['data']
         else:
             return data['errmsg']
+    
+    def make_menu(self):
+        menubar = tk.Menu(self.master)
+        filemenu = tk.Menu(menubar, tearoff=0)
+        filemenu.add_command(label='Refresh', command=self.update)
+        filemenu.add_command(label='Exit', command=self.master.quit)
+        menubar.add_cascade(label="File", menu=filemenu)
+        self.master.config(menu=menubar)
 
 cfg = ConfigParser()
 cfg.read('config.ini')
