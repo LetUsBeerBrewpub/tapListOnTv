@@ -52,6 +52,7 @@ class Planner(tk.Frame):
         self.draw()
 
         self.master.after(self.config.get('default', 'tapinfochecktime'), self.update)
+        self.master.after(self.config.get('default', 'msgchangetime'), self.update_notice)
 
     def draw_logo(self):
         img = Image.open(self.currPath+"/img/logo.png")
@@ -133,8 +134,14 @@ class Planner(tk.Frame):
             yy = yy + 200
         
         # messages
-        self.notice = self.canvas.create_text(self.w_width/2, 950, anchor="n", fill=self.fg, font=(self.mf, 40), text=self.data['messages'][0])
-        # self.update_notice()
+        self.notice = self.canvas.create_text(
+            self.w_width/2, 
+            950, 
+            anchor="n", 
+            fill=self.fg, 
+            font=(self.mf, 40), 
+            text=self.data['messages'][0]
+        )
         
     def update_notice(self):
         new_text = choice(self.data['messages'])
@@ -163,9 +170,13 @@ class Planner(tk.Frame):
             'secret':self.config.get('wx', 'secret')
         }
         headers = {'Accept':'application/json'}
-        r = requests.get(cs_url, params = param, headers = headers)
+        r = requests.get(cs_url, params=param, headers=headers)
         data = json.loads(r.text)
-        return data['access_token']
+        # print(type(data))
+        if 'errcode' in data:
+            print(data['errmsg'])
+        else:
+            return data['access_token']
 
     def wx_get_collection(self, token):
         cs_url = 'https://api.weixin.qq.com/tcb/databasecollectionget?'
