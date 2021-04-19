@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 # https://docs.python.org/zh-cn/3/library/tk.html
 
-import json, os, time, flag
+import json, os, time
 from configparser import ConfigParser
 import tkinter as tk
 from PIL import Image, ImageTk
