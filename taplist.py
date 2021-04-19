@@ -15,6 +15,7 @@ class Planner(tk.Frame):
         # load config file
         self.config = ConfigParser()
         self.config.read('config.ini')
+        self.side = self.config.get('default', 'side')
         self.bg = self.config.get('default', 'bgcolor')
         self.fg = self.config.get('default', 'fgcolor')
         self.mf = self.config.get('default', 'mainfont')
@@ -23,6 +24,7 @@ class Planner(tk.Frame):
         # set window
         self.master = master
         self.master.title(self.config.get('default', 'title'))
+        # self.master.geometry("1920x1080")
         self.master.attributes('-fullscreen', True)
         self.w_width = self.master.winfo_screenwidth()
         self.w_height = self.master.winfo_screenheight()
@@ -42,9 +44,15 @@ class Planner(tk.Frame):
         self.canvas.place(x=0, y=0)
         self.canvas.pack(fill='both', expand='yes')
 
+        # menu
+        self.make_menu()
+
         # output to gui
         self.data = self.get_data()
         self.draw()
+
+        self.master.after(self.config.get('default', 'tapinfochecktime'), self.update)
+        self.master.after(self.config.get('default', 'msgchangetime'), self.update_notice)
 
     def draw_logo(self):
         img = Image.open(self.currPath+"/img/logo.png")
@@ -59,11 +67,11 @@ class Planner(tk.Frame):
 
         token = self.wx_get_access_token()
         # tap info
-        if self.config.get('default', 'side') == 'left':
+        if self.side == 'left':
             query_str = '''
             db.collection("tapinfo").where({'tapid':_.lt(8)}).orderBy('tapid', 'asc').limit(8).get()
             '''
-        elif self.config.get('default', 'side') == 'right':
+        elif self.side == 'right':
             query_str = '''
             db.collection("tapinfo").where({'tapid':_.gte(8)}).orderBy('tapid', 'asc').limit(8).get()
             '''
@@ -78,9 +86,9 @@ class Planner(tk.Frame):
         query_result = self.wx_query_data(token = token, query = query_str)
         for row in query_result:
             messages.append(json.loads(row)['content'])
-        if self.config.get('default', 'side') == 'left':
+        if self.side == 'left':
             data["messages"] = messages[::2]
-        elif self.config.get('default', 'side') == 'right':
+        elif self.side == 'right':
             data["messages"] = messages[1::2]  
 
         return(data)
@@ -90,9 +98,9 @@ class Planner(tk.Frame):
 
         tapnum = ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F']
 
-        if self.config.get('default', 'side') == 'left':
+        if self.side == 'left':
             num = [4,3]
-        elif self.config.get('default', 'side') == 'right':
+        elif self.side == 'right':
             num = [12,11]
 
         # draw logo
@@ -126,8 +134,14 @@ class Planner(tk.Frame):
             yy = yy + 200
         
         # messages
-        self.notice = self.canvas.create_text(self.w_width/2, 950, anchor="n", fill=self.fg, font=(self.mf, 40), text=self.data['messages'][0])
-        self.update_notice()
+        self.notice = self.canvas.create_text(
+            self.w_width/2, 
+            950, 
+            anchor="n", 
+            fill=self.fg, 
+            font=(self.mf, 40), 
+            text=self.data['messages'][0]
+        )
         
     def update_notice(self):
         new_text = choice(self.data['messages'])
@@ -135,12 +149,12 @@ class Planner(tk.Frame):
         self.canvas.after(self.config.get('default', 'msgchangetime'), self.update_notice)
     
     def update(self):
+        print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
         data = {}
         # get data and check diff
         data = self.get_data()
-        shared_items = {k: data[k] for k in data if k in self.data and data[k] == self.data[k]}
-
-        if len(shared_items) == 1:
+        # update if has change
+        if data != self.data:
             #drop all taplist
             self.canvas.delete("all")
             #redraw
@@ -156,9 +170,13 @@ class Planner(tk.Frame):
             'secret':self.config.get('wx', 'secret')
         }
         headers = {'Accept':'application/json'}
-        r = requests.get(cs_url, params = param, headers = headers)
+        r = requests.get(cs_url, params=param, headers=headers)
         data = json.loads(r.text)
-        return data['access_token']
+        # print(type(data))
+        if 'errcode' in data:
+            print(data['errmsg'])
+        else:
+            return data['access_token']
 
     def wx_get_collection(self, token):
         cs_url = 'https://api.weixin.qq.com/tcb/databasecollectionget?'
@@ -194,12 +212,27 @@ class Planner(tk.Frame):
             return data['data']
         else:
             return data['errmsg']
+    
+    def switch_side(self):
+        if self.side == 'left':
+            self.side = 'right'
+        else:
+            self.side = 'left'
+        self.update()
+    
+    def make_menu(self):
+        menubar = tk.Menu(self.master)
+        filemenu = tk.Menu(menubar, tearoff=0)
+        filemenu.add_command(label='Refresh', command=self.update)
+        filemenu.add_command(label='Switch', command=self.switch_side)
+        filemenu.add_command(label='Exit', command=self.master.quit)
+        menubar.add_cascade(label="File", menu=filemenu)
+        self.master.config(menu=menubar)
 
 cfg = ConfigParser()
 cfg.read('config.ini')
 
 root = tk.Tk()
 app = Planner(master=root)
-app.after(cfg.get('default', 'tapinfochecktime'), app.update)
 app.mainloop()
 # root.destroy()
