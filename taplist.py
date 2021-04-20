@@ -20,6 +20,7 @@ class Planner(tk.Frame):
         self.fg = self.config.get('default', 'fgcolor')
         self.mf = self.config.get('default', 'mainfont')
         self.sf = self.config.get('default', 'subfont')
+        self.mode = self.config.get('default', 'mode')
 
         # set window
         self.master = master
@@ -57,7 +58,7 @@ class Planner(tk.Frame):
     def draw_logo(self):
         img = Image.open(self.currPath+"/img/logo.png")
         self.canvas.logo = ImageTk.PhotoImage(img)
-        self.canvas.create_image(self.w_width/2, self.w_width * 0.02, anchor="n", image=self.canvas.logo)
+        self.canvas.create_image(self.w_width/self.mode, self.w_width * 0.02, anchor="n", image=self.canvas.logo)
 
     def get_data(self):
         data = {}
@@ -107,7 +108,9 @@ class Planner(tk.Frame):
         self.draw_logo()
 
         # draw a parting line
-        self.canvas.create_line(self.w_width/2, self.w_height * 0.185, self.w_width/2, self.w_height * 0.77, fill=self.fg, width=2)
+        self.canvas.create_line(self.w_width/self.mode, self.w_height * 0.185, self.w_width/2, self.w_height * 0.77, fill=self.fg, width=2)
+
+
         # draw taplist
         yy = self.w_height * 0.185
         for tap in self.data['tap_data']:
@@ -135,7 +138,7 @@ class Planner(tk.Frame):
         
         # messages
         self.notice = self.canvas.create_text(
-            self.w_width/2, 
+            self.w_width/self.mode, 
             950, 
             anchor="n", 
             fill=self.fg, 

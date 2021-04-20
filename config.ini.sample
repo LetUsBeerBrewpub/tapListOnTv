@@ -8,6 +8,7 @@ mainfont = FZSXSGYSJW
 subfont = Apple SD Gothic Neo
 msgchangetime = 10000
 tapinfochecktime = 100000
+mode = 2
 
 [wx]
 envid = 
