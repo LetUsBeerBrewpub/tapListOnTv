@@ -20,7 +20,7 @@ class Planner(tk.Frame):
         self.fg = self.config.get('default', 'fgcolor')
         self.mf = self.config.get('default', 'mainfont')
         self.sf = self.config.get('default', 'subfont')
-        self.mode = self.config.get('default', 'mode')
+        self.mode = int(self.config.get('default', 'mode'))
 
         # set window
         self.master = master
@@ -77,6 +77,7 @@ class Planner(tk.Frame):
             db.collection("tapinfo").where({'tapid':_.gte(8)}).orderBy('tapid', 'asc').limit(8).get()
             '''
         query_result = self.wx_query_data(token = token, query = query_str)
+        print(query_result)
         for row in query_result:
             data["tap_data"].append(json.loads(row))
 
@@ -108,7 +109,7 @@ class Planner(tk.Frame):
         self.draw_logo()
 
         # draw a parting line
-        self.canvas.create_line(self.w_width/self.mode, self.w_height * 0.185, self.w_width/2, self.w_height * 0.77, fill=self.fg, width=2)
+        self.canvas.create_line(self.w_width/self.mode, self.w_height * 0.185, self.w_width/self.mode, self.w_height * 0.77, fill=self.fg, width=2)
 
 
         # draw taplist
