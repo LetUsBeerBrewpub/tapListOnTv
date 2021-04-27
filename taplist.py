@@ -115,7 +115,7 @@ class Planner(tk.Frame):
         # draw taplist
         yy = self.w_height * 0.185
         for tap in self.data['tap_data']:
-            xx = self.w_width/16
+            xx = self.w_width/(8*self.mode)
             if tap['tapid'] == num[0]:
                 yy = self.w_height * 0.185
             if tap['tapid'] > num[1]:
