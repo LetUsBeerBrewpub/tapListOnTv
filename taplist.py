@@ -77,7 +77,7 @@ class Planner(tk.Frame):
             db.collection("tapinfo").where({'tapid':_.gte(8)}).orderBy('tapid', 'asc').limit(8).get()
             '''
         query_result = self.wx_query_data(token = token, query = query_str)
-        print(query_result)
+        # print(query_result)
         for row in query_result:
             data["tap_data"].append(json.loads(row))
 
@@ -174,13 +174,17 @@ class Planner(tk.Frame):
             'secret':self.config.get('wx', 'secret')
         }
         headers = {'Accept':'application/json'}
-        r = requests.get(cs_url, params=param, headers=headers)
-        data = json.loads(r.text)
-        # print(type(data))
-        if 'errcode' in data:
-            print(data['errmsg'])
+        try:
+            r = requests.get(cs_url, params=param, headers=headers)
+        except:
+            print('err_log:get access token failed.')
         else:
-            return data['access_token']
+            data = json.loads(r.text)
+
+            if 'errcode' in data:
+                print(data['errmsg'])
+            else:
+                return data['access_token']
 
     def wx_get_collection(self, token):
         cs_url = 'https://api.weixin.qq.com/tcb/databasecollectionget?'
@@ -210,12 +214,16 @@ class Planner(tk.Frame):
             'query':query
         }
         headers = {'content-type': 'application/json'}
-        r = requests.post(cs_url, params = params, data = json.dumps(body), headers = headers)
-        data = json.loads(r.text)
-        if data['errcode'] == 0:
-            return data['data']
+        try:
+            r = requests.post(cs_url, params = params, data = json.dumps(body), headers = headers)
+        except:
+            return self.data
         else:
-            return data['errmsg']
+            data = json.loads(r.text)
+            if data['errcode'] == 0:
+                return data['data']
+            else:
+                return data['errmsg']
     
     def switch_side(self):
         if self.side == 'left':

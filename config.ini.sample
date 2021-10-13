@@ -17,3 +17,6 @@ secret =
 
 [mongodb]
 url = 
+
+[mysql]
+host = 
