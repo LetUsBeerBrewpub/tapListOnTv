@@ -1,0 +1,48 @@
+* {
+    background-color: #000;
+    color: #F7F7F7;
+    font-family:'FZSXSGYSJW';
+}
+QMainWindow {
+    background-color: #000;
+}
+QLabel {
+    /* background-color: #101010; */
+}
+#header {
+    background-color: #000;
+}
+#footer {
+    background-color: #000;
+    font-family: 'FZQingKeBenYueSongS-R-GB';
+    font-size:50px;
+}
+#layout0 {
+    font-size:50px;
+}
+#layoutItem_no, #layoutItem_namecn, #layoutItem_nameen, #layoutItem_data, #layoutItem_price, #layoutItem_capacity {
+    /* background-color: red; */
+    font-family:'Apple SD Gothic Neo';
+    font-size:20px;
+}
+#layoutItem_no {
+    font-size:60px;
+}
+#layoutItem_namecn {
+    font-family:'FZSXSGYSJW';
+    font-size:45px;
+}
+#layoutItem_capacity {
+    font-size:25px;
+}
+#layoutItem_price {
+    font-size:46px;
+    border-bottom: 2px solid #F7F7F7;
+}
+#splitter {
+    background-color: #F7F7F7;
+}
+#layoutFIcon {
+    background-color: orange;
+    width:20%;
+}
