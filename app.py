@@ -1,4 +1,4 @@
-import sys, datetime
+import sys, datetime, json
 import PySide6
 from PySide6 import QtWidgets
 from PySide6 import QtCore
@@ -16,14 +16,7 @@ class TapList(QMainWindow):
         self.infoOutput()
         self.initUI()
         self.initLayout()
-        self.draw(targetLayout=self.layout0)
-        self.draw(targetLayout=self.layout1)
-        self.draw(targetLayout=self.layout2)
-        self.draw(targetLayout=self.layout3)
-        self.draw(targetLayout=self.layout4)
-        self.draw(targetLayout=self.layout5)
-        self.draw(targetLayout=self.layout6)
-        self.draw(targetLayout=self.layout7)
+        self.makeTapList(side=0)
 
     # setup GUI
     def initUI(self):
@@ -78,13 +71,6 @@ class TapList(QMainWindow):
         self.layoutF.setFixedHeight(120)
         self.layoutF.setAlignment(Qt.AlignCenter)
         self.layoutF.setText("生啤尝味套装 150mL × 4杯 任选 ￥68/组 (不重复)")
-        self.layoutFIcon = QLabel()
-        self.layoutFIcon.setObjectName('layoutFIcon')
-
-        self.beerSetIcon = QPixmap('img/beerset.png')
-        self.layoutFIcon.setPixmap(self.beerSetIcon)
-        # self.beerSetIcon.setFixedHeight(80)
-        # self.layoutF.setAlignment(Qt.AlignCenter)
 
         # gridding
         self.layout.addWidget(self.layoutH, 0, 0, 1, 3)
@@ -102,7 +88,7 @@ class TapList(QMainWindow):
         
         self.setCentralWidget(self.window)
 
-    def draw(self, targetLayout, itemData = 0):
+    def draw(self, targetLayout, itemData):
         self.layoutItemDetail = QGridLayout(parent=targetLayout)
 
         self.layoutItem_no      = QLabel()
@@ -130,25 +116,46 @@ class TapList(QMainWindow):
         self.layoutItemDetail.addWidget(self.layoutItem_price, 0, 15, 2, 2)
         self.layoutItemDetail.addWidget(self.layoutItem_capacity, 2, 15, 2, 2)
 
-        self.layoutItem_no.setText('#0')
-        self.layoutItem_namecn.setText('乐啤 乳酸菌苏打 (无酒精)')
-        self.layoutItem_nameen.setText('Let’s Beer Sour Milk Soda')
-        self.layoutItem_data.setText('酒精度 0.0% ABV   苦度 0 IBU')
-        self.layoutItem_price.setText('￥28')
-        self.layoutItem_capacity.setText('杯型<br>330mL')
+        self.layoutItem_no.setText('#' + itemData['tapid'])
+        self.layoutItem_namecn.setText(
+            itemData['brewery'] + ' ' + itemData['beername'] + ' ' + itemData['beerstyle'])
+        self.layoutItem_nameen.setText(itemData['beernameen'])
+        self.layoutItem_data.setText(
+            '酒精度 ' + itemData['abv'] + '% ABV   苦度 ' + itemData['ibu'] + ' IBU')
+        self.layoutItem_price.setText('￥' + itemData['price'])
+        self.layoutItem_capacity.setText('杯型<br>' + itemData['glass_type'] + 'mL')
 
-    def makeTapList(self):
+    def makeTapList(self, side = 0):
         # get data
-
+        self.data = self.getData(getdatafrom=0)
         # draw
-        self.draw(targetLayout=self.layout0)
+        for i in range(8):
+            exec(
+                'self.draw(targetLayout=self.layout%s,itemData=self.data[i])'%str(i)
+            )
+            # check item status
+            if self.data[i]['status'] == '0':
+                exec('self.layout%s.setStyleSheet("color: #F7F7F7;")' % str(i))
+            else:
+                exec('self.layout%s.setStyleSheet("color: #373737;")' % str(i))
     
     def setSoldout(self, layoutname):
         layoutname.setStyleSheet("color: #373737;")
 
-    def emptyTaplist(self):
-        # remove all taplist detail layout
-        print('')
+    def getData(self, getdatafrom):
+        # get data from: 
+        # 0-test json data
+        # 1-wechat interface
+        # 2-dragon head database
+        if getdatafrom==0:
+            # load data from json file
+            with open("sandbox/tapdata.json", "r") as f:
+                result = json.load(f)
+        elif getdatafrom==1:
+            # load data from wechat
+            print(1)
+        
+        return result
 
     # output information
     def infoOutput(self):
@@ -164,7 +171,6 @@ def main():
     with open("style.qss", "r") as f:
         _style = f.read()
         app.setStyleSheet(_style)
-
     # Create and show
     taplist = TapList()
     # show full screen
