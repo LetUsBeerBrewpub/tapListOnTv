@@ -1,27 +1,24 @@
 * {
-    background-color: #000;
+    background-color: #1C1C1C;
     color: #F7F7F7;
     font-family:'FZSXSGYSJW';
 }
 QMainWindow {
-    background-color: #000;
+    background-color: #1C1C1C;
 }
 QLabel {
-    /* background-color: #101010; */
+    background-color: orange;
 }
 #header {
-    background-color: #000;
+    background-color: #1C1C1C;
 }
 #footer {
-    background-color: #000;
+    background-color: #1C1C1C;
     font-family: 'FZQingKeBenYueSongS-R-GB';
     font-size:50px;
 }
-#layout0 {
-    font-size:50px;
-}
 #layoutItem_no, #layoutItem_namecn, #layoutItem_nameen, #layoutItem_data, #layoutItem_price, #layoutItem_capacity {
-    /* background-color: red; */
+    background-color: red;
     font-family:'Apple SD Gothic Neo';
     font-size:20px;
 }
@@ -41,8 +38,4 @@ QLabel {
 }
 #splitter {
     background-color: #F7F7F7;
-}
-#layoutFIcon {
-    background-color: orange;
-    width:20%;
 }

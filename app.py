@@ -1,13 +1,18 @@
-import sys, datetime, json
+import sys
+import datetime
+import threading
+import json
+import requests
+from configparser import ConfigParser
 import PySide6
 from PySide6 import QtWidgets
 from PySide6 import QtCore
-from PySide6.QtCore import Qt, QLineF, QLine
+from PySide6.QtCore import QTime, Qt, QLineF, QLine
 from PySide6.QtWidgets import (
     QApplication, QHBoxLayout, QGridLayout, QLabel, QFrame, 
     QLineEdit, QPushButton, QMainWindow, QVBoxLayout, QWidget)
 from PySide6.QtGui import QGuiApplication, QPixmap, QPainter
-
+from requests.api import get
 
 class TapList(QMainWindow):
     def __init__(self, parent=None):
@@ -16,7 +21,19 @@ class TapList(QMainWindow):
         self.infoOutput()
         self.initUI()
         self.initLayout()
-        self.makeTapList(side=0)
+        self.loadConfig()
+        self.makeTapList(getFrom=1, menuSide=0)
+        self.reNew()
+
+    def loadConfig(self):
+        self.config = ConfigParser()
+        self.config.read('config.ini')
+        self.side = self.config.get('default', 'side')
+        self.bg = self.config.get('default', 'bgcolor')
+        self.fg = self.config.get('default', 'fgcolor')
+        self.mf = self.config.get('default', 'mainfont')
+        self.sf = self.config.get('default', 'subfont')
+        self.mode = int(self.config.get('default', 'mode'))
 
     # setup GUI
     def initUI(self):
@@ -116,6 +133,9 @@ class TapList(QMainWindow):
         self.layoutItemDetail.addWidget(self.layoutItem_price, 0, 15, 2, 2)
         self.layoutItemDetail.addWidget(self.layoutItem_capacity, 2, 15, 2, 2)
 
+        self.write2Layout(itemData)
+    
+    def write2Layout(self, itemData):
         self.layoutItem_no.setText('#' + itemData['tapid'])
         self.layoutItem_namecn.setText(
             itemData['brewery'] + ' ' + itemData['beername'] + ' ' + itemData['beerstyle'])
@@ -123,39 +143,152 @@ class TapList(QMainWindow):
         self.layoutItem_data.setText(
             '酒精度 ' + itemData['abv'] + '% ABV   苦度 ' + itemData['ibu'] + ' IBU')
         self.layoutItem_price.setText('￥' + itemData['price'])
-        self.layoutItem_capacity.setText('杯型<br>' + itemData['glass_type'] + 'mL')
+        self.layoutItem_capacity.setText(
+            '杯型<br>' + itemData['glass_type'] + 'mL')
 
-    def makeTapList(self, side = 0):
+    def makeTapList(self, getFrom, menuSide=0):
         # get data
-        self.data = self.getData(getdatafrom=0)
+        self.data = self.getData(getdatafrom=getFrom, side=menuSide)
         # draw
         for i in range(8):
-            exec(
-                'self.draw(targetLayout=self.layout%s,itemData=self.data[i])'%str(i)
-            )
+            exec('self.draw(targetLayout=self.layout%s,itemData=self.data[i])'%str(i))
             # check item status
             if self.data[i]['status'] == '0':
                 exec('self.layout%s.setStyleSheet("color: #F7F7F7;")' % str(i))
             else:
                 exec('self.layout%s.setStyleSheet("color: #373737;")' % str(i))
-    
-    def setSoldout(self, layoutname):
-        layoutname.setStyleSheet("color: #373737;")
 
-    def getData(self, getdatafrom):
+    def getData(self, getdatafrom, side):
         # get data from: 
         # 0-test json data
         # 1-wechat interface
         # 2-dragon head database
+        data = []
         if getdatafrom==0:
             # load data from json file
             with open("sandbox/tapdata.json", "r") as f:
-                result = json.load(f)
+                data = json.load(f)
         elif getdatafrom==1:
-            # load data from wechat
-            print(1)
-        
-        return result
+            data = self.getDataFromWx(side=side)
+        return data
+
+    def getDataFromWx(self,side):
+        data = []
+        token = self.wx_get_access_token()
+        # tap info
+        if side == 0:
+            query_str = '''
+            db.collection("tapinfo").where({'tapid':_.lt(8)}).orderBy(
+                'tapid', 'asc').limit(8).get()
+            '''
+        elif side == 1:
+            query_str = '''
+            db.collection("tapinfo").where({'tapid':_.gte(8)}).orderBy('tapid', 'asc').limit(8).get()
+            '''
+        try:
+            query_result = self.wx_query_data(token=token, query=query_str)
+        except:
+            data = self.data
+            print('err_log:get query data from wx failed.')
+        else:
+            for row in query_result:
+                r = json.loads(row)
+                if r['status'] == True:
+                    status = '0'
+                elif r['status'] == False:
+                    status = '1'
+                data.append({
+                    'tapid': str(r['tapid']),
+                    'brewery': r['brewery'],
+                    'beername': r['beername'],
+                    'beerstyle': r['beerstyle'],
+                    'beernameen': r['ebeername'],
+                    'abv': r['abv'],
+                    'ibu': r['ibu'],
+                    'price': r['price'],
+                    'glass_type': r['glass_type'],
+                    'country': r['country'],
+                    'status': status
+                })
+        return data
+
+    def wx_get_access_token(self):
+        cs_url = 'https://api.weixin.qq.com/cgi-bin/token?'
+        param = {
+            'grant_type': 'client_credential',
+            'appid': self.config.get('wx', 'appid'),
+            'secret': self.config.get('wx', 'secret')
+        }
+        headers = {'Accept': 'application/json'}
+        try:
+            r = requests.get(cs_url, params=param, headers=headers)
+        except:
+            print('err_log:get access token failed.')
+        else:
+            data = json.loads(r.text)
+
+        if 'errcode' in data:
+            print(data['errmsg'])
+        else:
+            return data['access_token']
+
+    def wx_get_collection(self, token):
+        cs_url = 'https://api.weixin.qq.com/tcb/databasecollectionget?'
+        params = {
+            'access_token': token
+        }
+        body = {
+            'limit': '10',
+            'offset': '0',
+            'env': self.config.get('wx', 'envid')
+        }
+        headers = {'content-type': 'application/json'}
+        try:
+            r = requests.post(cs_url, params=params,
+                            data=json.dumps(body), headers=headers)
+        except:
+            return self.data
+        else:
+            data = json.loads(r.text)
+        if data['errcode'] == 0:
+            return data['collections']
+        else:
+            return data['errmsg']
+
+    def wx_query_data(self, token, query):
+        cs_url = 'https://api.weixin.qq.com/tcb/databasequery?'
+        params = {
+            'access_token': token
+        }
+        body = {
+            'env': self.config.get('wx', 'envid'),
+            'query': query
+        }
+        headers = {'content-type': 'application/json'}
+        try:
+            r = requests.post(cs_url, params=params,
+                data=json.dumps(body), headers=headers)
+        except:
+            return self.data
+        else:
+            data = json.loads(r.text)
+            if data['errcode'] == 0:
+                return data['data']
+            else:
+                return data['errmsg']
+    
+    def reNew(self):
+        # timer = QTime()
+        # while True:
+        #     time.sleep(10)
+        #     self.clearLabel()
+        #     self.makeTapList(getFrom=0, menuSide=0)
+        #     print('renew taplist at:')
+        #     print(datetime.datetime.now())
+        # time.sleep(10)
+        # self.clearLabel()
+        # self.layoutF.setText('哈哈哈')
+        print('')
 
     # output information
     def infoOutput(self):
