@@ -23,7 +23,7 @@ class TapList(QMainWindow):
         self.initLayout()
         self.loadConfig()
         self.makeTapList(getFrom=1, menuSide=0)
-        self.reNew()
+        self.reNewMenu()
 
     def loadConfig(self):
         self.config = ConfigParser()
@@ -46,11 +46,12 @@ class TapList(QMainWindow):
         # set screen size
         self.resize(1920, 1080)
         self.setMinimumWidth(800)
+        self.layout = QGridLayout()
     
     # setup layout
     def initLayout(self):
-        self.window = QWidget()
         self.layout = QGridLayout()
+        self.window = QWidget()
         self.window.setLayout(self.layout)
 
         # set header(logo) layout
@@ -277,18 +278,11 @@ class TapList(QMainWindow):
             else:
                 return data['errmsg']
     
-    def reNew(self):
-        # timer = QTime()
-        # while True:
-        #     time.sleep(10)
-        #     self.clearLabel()
-        #     self.makeTapList(getFrom=0, menuSide=0)
-        #     print('renew taplist at:')
-        #     print(datetime.datetime.now())
-        # time.sleep(10)
-        # self.clearLabel()
-        # self.layoutF.setText('哈哈哈')
-        print('')
+    # remake menu (update/switch)
+    def reNewMenu(self):
+        self.window.setParent(None)
+        self.initLayout()
+        self.makeTapList(getFrom=0, menuSide=0)
 
     # output information
     def infoOutput(self):
