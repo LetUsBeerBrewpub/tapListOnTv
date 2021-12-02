@@ -1,16 +1,15 @@
 import sys
 import datetime
-import threading
 import json
 import requests
 from configparser import ConfigParser
 import PySide6
 from PySide6 import QtWidgets
 from PySide6 import QtCore
-from PySide6.QtCore import QTime, Qt, QLineF, QLine
+from PySide6.QtCore import Qt, QThread, QTimer
 from PySide6.QtWidgets import (
-    QApplication, QHBoxLayout, QGridLayout, QLabel, QFrame, 
-    QLineEdit, QPushButton, QMainWindow, QVBoxLayout, QWidget)
+    QApplication, QGridLayout, QLabel, 
+    QMainWindow, QWidget)
 from PySide6.QtGui import QGuiApplication, QPixmap, QPainter
 from requests.api import get
 
@@ -22,8 +21,11 @@ class TapList(QMainWindow):
         self.initUI()
         self.initLayout()
         self.loadConfig()
-        self.makeTapList(getFrom=1, menuSide=0)
-        self.reNewMenu()
+        self.makeTapList(getFrom=1, menuSide=1)
+
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.renewTimer)
+        self.startTimer()
 
     def loadConfig(self):
         self.config = ConfigParser()
@@ -251,6 +253,7 @@ class TapList(QMainWindow):
             return self.data
         else:
             data = json.loads(r.text)
+            
         if data['errcode'] == 0:
             return data['collections']
         else:
@@ -283,6 +286,18 @@ class TapList(QMainWindow):
         self.window.setParent(None)
         self.initLayout()
         self.makeTapList(getFrom=0, menuSide=0)
+    
+    def renewTimer(self):
+        self.endTimer()
+        self.reNewMenu()
+        self.startTimer()
+    
+    def startTimer(self):
+        self.timer.start(10000)  # 5000 单位是毫秒， 即 5 秒
+        print('do renewMenu')
+
+    def endTimer(self):
+        self.timer.stop()
 
     # output information
     def infoOutput(self):
@@ -300,12 +315,12 @@ def main():
         app.setStyleSheet(_style)
     # Create and show
     taplist = TapList()
-    # show full screen
-    # taplist.showFullScreen()
     taplist.show()
+
+
     # Run the main Qt loop
     sys.exit(app.exec())
-
+    
 
 if __name__ == "__main__":
     main()
