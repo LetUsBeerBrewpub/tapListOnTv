@@ -18,24 +18,26 @@ class TapList(QMainWindow):
         # init
         super(TapList, self).__init__(parent)
         self.infoOutput()
+        self.loadConfig()
         self.initUI()
         self.initLayout()
-        self.loadConfig()
-        self.makeTapList(getFrom=1, menuSide=1)
-
+        self.makeTapList(getFrom=self.data_source, menuSide=self.side)
+        # start renew timer  
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.renewTimer)
         self.startTimer()
 
+    # load config parameter
     def loadConfig(self):
         self.config = ConfigParser()
         self.config.read('config.ini')
-        self.side = self.config.get('default', 'side')
-        self.bg = self.config.get('default', 'bgcolor')
-        self.fg = self.config.get('default', 'fgcolor')
-        self.mf = self.config.get('default', 'mainfont')
-        self.sf = self.config.get('default', 'subfont')
-        self.mode = int(self.config.get('default', 'mode'))
+        self.window_title = self.config.get('default', 'window_title')
+        self.side = int(self.config.get('default', 'side'))
+        self.renew_period = int(self.config.get('default', 'renew_period'))
+        self.data_source = int(self.config.get('default', 'data_source'))
+        self.notic_0 = self.config.get('default', 'notic_0')
+        self.notic_1 = self.config.get('default', 'notic_1')
+        self.logo_path = self.config.get('default', 'logo_path')
 
     # setup GUI
     def initUI(self):
@@ -47,7 +49,7 @@ class TapList(QMainWindow):
         self.height = self.screen.height()
         # set screen size
         self.resize(1920, 1080)
-        self.setMinimumWidth(800)
+        # self.setMinimumWidth(800)
         self.layout = QGridLayout()
     
     # setup layout
@@ -59,7 +61,7 @@ class TapList(QMainWindow):
         # set header(logo) layout
         self.layoutH = QLabel()
         self.layoutH.setObjectName('header')
-        self.logo = QPixmap('img/logo_w.png')
+        self.logo = QPixmap(self.logo_path)
         self.layoutH.setPixmap(self.logo)
         self.layoutH.setFixedHeight(100)
         self.layoutH.setAlignment(Qt.AlignCenter)
@@ -90,7 +92,11 @@ class TapList(QMainWindow):
         self.layoutF.setObjectName('footer')
         self.layoutF.setFixedHeight(120)
         self.layoutF.setAlignment(Qt.AlignCenter)
-        self.layoutF.setText("生啤尝味套装 150mL × 4杯 任选 ￥68/组 (不重复)")
+        if self.side==0:
+            notic_text = self.notic_0
+        else:
+            notic_text = self.notic_1
+        self.layoutF.setText(notic_text)
 
         # gridding
         self.layout.addWidget(self.layoutH, 0, 0, 1, 3)
@@ -104,8 +110,6 @@ class TapList(QMainWindow):
         self.layout.addWidget(self.layout7, 4, 2)
         self.layout.addWidget(self.layout8, 1, 1, 4, 1)
         self.layout.addWidget(self.layoutF, 5, 0, 1, 3)
-        # self.layout.addWidget(self.layoutFIcon, 5, 1, 1, 1)
-        
         self.setCentralWidget(self.window)
 
     def draw(self, targetLayout, itemData):
@@ -139,7 +143,9 @@ class TapList(QMainWindow):
         self.write2Layout(itemData)
     
     def write2Layout(self, itemData):
-        self.layoutItem_no.setText('#' + itemData['tapid'])
+        tapnum = ['0', '1', '2', '3', '4', '5', '6',
+                  '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F']
+        self.layoutItem_no.setText('#' + tapnum[int(itemData['tapid'])])
         self.layoutItem_namecn.setText(
             itemData['brewery'] + ' ' + itemData['beername'] + ' ' + itemData['beerstyle'])
         self.layoutItem_nameen.setText(itemData['beernameen'])
@@ -164,7 +170,7 @@ class TapList(QMainWindow):
     def getData(self, getdatafrom, side):
         # get data from: 
         # 0-test json data
-        # 1-wechat interface
+        # 1-wechat interface\
         # 2-dragon head database
         data = []
         if getdatafrom==0:
@@ -293,7 +299,7 @@ class TapList(QMainWindow):
         self.startTimer()
     
     def startTimer(self):
-        self.timer.start(10000)  # 5000 单位是毫秒， 即 5 秒
+        self.timer.start(self.renew_period)  # 5000 单位是毫秒， 即 5 秒
         print('do renewMenu')
 
     def endTimer(self):
@@ -316,8 +322,6 @@ def main():
     # Create and show
     taplist = TapList()
     taplist.show()
-
-
     # Run the main Qt loop
     sys.exit(app.exec())
     
