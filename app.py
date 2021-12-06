@@ -177,6 +177,8 @@ class TapList(QMainWindow):
             # load data from json file
             with open("sandbox/tapdata.json", "r") as f:
                 data = json.load(f)
+            if side==1:
+                data = data[8:]
         elif getdatafrom==1:
             data = self.getDataFromWx(side=side)
         return data
@@ -235,11 +237,10 @@ class TapList(QMainWindow):
             print('err_log:get access token failed.')
         else:
             data = json.loads(r.text)
-
-        if 'errcode' in data:
-            print(data['errmsg'])
-        else:
-            return data['access_token']
+            if 'errcode' in data:
+                print(data['errmsg'])
+            else:
+                return data['access_token']
 
     def wx_get_collection(self, token):
         cs_url = 'https://api.weixin.qq.com/tcb/databasecollectionget?'
@@ -291,7 +292,7 @@ class TapList(QMainWindow):
     def reNewMenu(self):
         self.window.setParent(None)
         self.initLayout()
-        self.makeTapList(getFrom=0, menuSide=0)
+        self.makeTapList(getFrom=self.data_source, menuSide=self.side)
     
     def renewTimer(self):
         self.endTimer()
