@@ -9,8 +9,8 @@ from PySide6 import QtCore
 from PySide6.QtCore import Qt, QThread, QTimer
 from PySide6.QtWidgets import (
     QApplication, QGridLayout, QLabel, 
-    QMainWindow, QWidget)
-from PySide6.QtGui import QGuiApplication, QPixmap, QPainter
+    QMainWindow, QWidget, QMenu)
+from PySide6.QtGui import QGuiApplication, QPixmap, QPainter, QContextMenuEvent, QCursor
 from requests.api import get
 
 class TapList(QMainWindow):
@@ -22,6 +22,7 @@ class TapList(QMainWindow):
         self.initUI()
         self.initLayout()
         self.makeTapList(getFrom=self.data_source, menuSide=self.side)
+        self.createContextMenu()
         # start renew timer  
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.renewTimer)
@@ -305,6 +306,32 @@ class TapList(QMainWindow):
 
     def endTimer(self):
         self.timer.stop()
+    
+    def createContextMenu(self):
+        self.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.showContextMenu)
+
+        self.contextMenu = QMenu(self)
+        self.actionSWitch = self.contextMenu.addAction(u'Switch')
+        self.actionRefresh = self.contextMenu.addAction(u'Refresh')
+
+        self.actionSWitch.triggered.connect(self.switchSide)
+        self.actionRefresh.triggered.connect(self.reNewMenu)
+    
+    def showContextMenu(self, pos):
+        self.contextMenu.move(QCursor().pos())
+        self.contextMenu.show()
+    
+    def switchSide(self):
+        print(self.side)
+        if self.side == 0:
+            self.side = 1
+        elif self.side == 1:
+            self.side = 0
+        print(self.side)
+        self.reNewMenu()
+
+
 
     # output information
     def infoOutput(self):
