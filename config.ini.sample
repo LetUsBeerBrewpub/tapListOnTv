@@ -1,14 +1,12 @@
 ; config file for taplist.py
 [default]
-side = right
-title = Let's Beer Brewpub Tap List
-bgcolor = #1c1c1c
-fgcolor = #F7F7F7
-mainfont = FZSXSGYSJW
-subfont = Apple SD Gothic Neo
-msgchangetime = 10000
-tapinfochecktime = 100000
-mode = 2
+side = 1
+data_source = 0
+renew_period = 5000
+window_title = "Taplist - Let's Beer Brewpub"
+logo_path = 'img/logo_w.png'
+notic_0 = 生啤尝味套装 150mL × 4杯 任选 ￥68/组 (不重复)
+notic_1 = 会员年费299，享全年88折
 
 [wx]
 envid = 
@@ -19,4 +17,7 @@ secret =
 url = 
 
 [mysql]
-host = 
+db_host = localhost
+db_user = root
+db_pass = 
+db_name = 
