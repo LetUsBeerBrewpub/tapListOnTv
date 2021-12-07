@@ -39,3 +39,9 @@ QLabel {
 #splitter {
     background-color: #F7F7F7;
 }
+QMenu {
+    background-color: #fff;
+    color: #000;
+    font-size: 20;
+    font-family: 'Source Code Pro'
+}

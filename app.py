@@ -163,11 +163,9 @@ class TapList(QMainWindow):
         for i in range(8):
             exec('self.draw(targetLayout=self.layout%s,itemData=self.data[i])'%str(i))
             # check item status
-            if self.data[i]['status'] == '0':
-                exec('self.layout%s.setStyleSheet("color: #F7F7F7;")' % str(i))
-            else:
-                exec('self.layout%s.setStyleSheet("color: #373737;")' % str(i))
-
+            if self.data[i]['status'] == '1':
+                exec('self.layout%s.setStyleSheet("color: #373737; border: #373737; ")' % str(i))
+                
     def getData(self, getdatafrom, side):
         # get data from: 
         # 0-test json data
@@ -294,6 +292,10 @@ class TapList(QMainWindow):
         self.window.setParent(None)
         self.initLayout()
         self.makeTapList(getFrom=self.data_source, menuSide=self.side)
+        print(str(datetime.datetime.now()) + 
+            ' ==> refresh taplist side: ' + str(self.side) + 
+            ' from: ' + str(self.data_source)
+        )
     
     def renewTimer(self):
         self.endTimer()
@@ -302,11 +304,11 @@ class TapList(QMainWindow):
     
     def startTimer(self):
         self.timer.start(self.renew_period)  # 5000 单位是毫秒， 即 5 秒
-        print('do renewMenu')
 
     def endTimer(self):
         self.timer.stop()
     
+    # creat menu and bind action
     def createContextMenu(self):
         self.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.showContextMenu)
@@ -318,20 +320,18 @@ class TapList(QMainWindow):
         self.actionSWitch.triggered.connect(self.switchSide)
         self.actionRefresh.triggered.connect(self.reNewMenu)
     
+    # show menu
     def showContextMenu(self, pos):
         self.contextMenu.move(QCursor().pos())
         self.contextMenu.show()
     
+    # menu action switch menu side
     def switchSide(self):
-        print(self.side)
         if self.side == 0:
             self.side = 1
         elif self.side == 1:
             self.side = 0
-        print(self.side)
         self.reNewMenu()
-
-
 
     # output information
     def infoOutput(self):
