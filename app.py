@@ -62,7 +62,7 @@ class TapList(QMainWindow):
         # set header(logo) layout
         self.layoutH = QLabel()
         self.layoutH.setObjectName('header')
-        self.logo = QPixmap(self.logo_path)
+        self.logo = QPixmap('img/logo_w.png')
         self.layoutH.setPixmap(self.logo)
         self.layoutH.setFixedHeight(100)
         self.layoutH.setAlignment(Qt.AlignCenter)
