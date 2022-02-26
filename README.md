@@ -6,10 +6,11 @@ Dragon Head 的一部分，用于将在枪状态的酒显示在电视机端的�
 
 ## 开发环境
 
+pyenv virtual env
 ```shell
-virtualenv venv
-source venv/bin/activate
-deactivate
+pyenv virtualenv 3.9.7 venv
+pyenv activate venv
+pyenv deactivate venv
 ```
 
 ## 更新requirements.txt
