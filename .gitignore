@@ -2,3 +2,4 @@ sandbox/
 venv/
 .vscode/
 config.ini
+.DS_Store
