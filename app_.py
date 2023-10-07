@@ -12,6 +12,8 @@ from PySide6.QtWidgets import (
     QMainWindow, QWidget, QMenu)
 from PySide6.QtGui import QGuiApplication, QPixmap, QPainter, QContextMenuEvent, QCursor
 from requests.api import get
+from notion_client import Client, APIErrorCode, APIResponseError
+from pprint import pprint
 
 class TapList(QMainWindow):
     def __init__(self, parent=None):
@@ -27,6 +29,11 @@ class TapList(QMainWindow):
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.renewTimer)
         self.startTimer()
+        # notion
+        selfnotion = Client(
+            auth = self.notionToken,
+            # log_level = self.logging.DEBUG,
+        )
 
     # load config parameter
     def loadConfig(self):
@@ -39,6 +46,8 @@ class TapList(QMainWindow):
         self.notic_0 = self.config.get('default', 'notic_0')
         self.notic_1 = self.config.get('default', 'notic_1')
         self.logo_path = self.config.get('default', 'logo_path')
+        self.notionToken = self.config.get('notion', 'token')
+        self.notionDatabaseID = self.config.get('notion', 'databaseID')
 
     # setup GUI
     def initUI(self):
@@ -158,29 +167,62 @@ class TapList(QMainWindow):
 
     def makeTapList(self, getFrom, menuSide=0):
         # get data
-        self.data = self.getData(getdatafrom=getFrom, side=menuSide)
+        self.data = self.getData(getdatafrom=2, side=menuSide)
         # draw
         for i in range(8):
-            exec('self.draw(targetLayout=self.layout%s,itemData=self.data[i])'%str(i))
+            pprint(self.data)
+            # exec('self.draw(targetLayout=self.layout%s, itemData=self.data[i])'%str(i))
             # check item status
-            if self.data[i]['status'] == '1':
-                exec('self.layout%s.setStyleSheet("color: #373737; border: #373737; ")' % str(i))
+            # if self.data[i]['status'] == '1':
+            #     exec('self.layout%s.setStyleSheet("color: #373737; border: #373737; ")' % str(i))
                 
     def getData(self, getdatafrom, side):
         # get data from: 
-        # 0-test json data
-        # 1-wechat interface\
-        # 2-dragon head database
+        # 0- test json data
+        # 1- wechat interface
+        # 2- notion database
         data = []
         if getdatafrom==0:
             # load data from json file
-            with open("sandbox/tapdata.json", "r") as f:
+            with open("./tapdata.json", "r") as f:
                 data = json.load(f)
             if side==1:
                 data = data[8:]
         elif getdatafrom==1:
             data = self.getDataFromWx(side=side)
+        elif getdatafrom==2:
+            print('notion')
+            data = self.getDataFromNotion()
+        
+        pprint(data)
         return data
+
+    def getDataFromNotion(self):
+        data = self.notion.databases.query(
+            **{
+                'database_id': self.notionDatabaseID,
+                'filter': {
+                    'and': [
+                        {
+                            'property': '状态',
+                            'select': {'equals': '在售'}
+                        },
+                        {
+                            'property': '所在分店',
+                            'relation': {'contains': '78ba5732-1ca2-40ed-b3d4-83841d39c0a1'}
+                        },
+                    ]
+                },
+                "sorts": [
+                    {
+                        "property": "酒头",
+                        "direction": "ascending"
+                    }
+                ]
+            }
+        )
+        return data['results']
+
 
     def getDataFromWx(self,side):
         data = []
@@ -286,6 +328,9 @@ class TapList(QMainWindow):
                 return data['data']
             else:
                 return data['errmsg']
+    
+    def getDataFromNation(self, side):
+        print(side)
     
     # remake menu (update/switch)
     def reNewMenu(self):

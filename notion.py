@@ -38,7 +38,18 @@ data = notion.databases.query(
         ]
     }
 )
-pprint(len(data['results']))
+# pprint(data['results'][6]['properties'])
+jsonString = json.dumps(data['results'])
+res = json.loads(jsonString)
+# res = []
+# for k,v in data['results'].items():
+#     res[k]['abv'] = v['properties']['酒精度']['rollup']
+
+
+pprint(type(res))
+
+# for key,value in data['results']:
+#     pprint(value)
 
 
 
